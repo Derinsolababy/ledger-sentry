@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-coal: #121417;
+  --color-slab: #1a1d22;
+  --color-line: #2a2f37;
+  --color-txt: #e6e8ec;
+  --color-sub: #8b93a1;
+  --color-crit: #ff4d4f;
+  --color-warn: #ffa940;
+  --color-info: #40a9ff;
+  --color-live: #52c41a;
+  --font-sans: "Inter Tight", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+body { background: var(--color-coal); color: var(--color-txt); font-family: var(--font-sans); }
+
+@layer components {
+  .card { background: var(--color-slab); border: 1px solid var(--color-line); border-radius: 12px; }
+  .ctl { width: 100%; background: var(--color-coal); border: 1px solid var(--color-line); border-radius: 8px; padding: .5rem .7rem; font-size: .85rem; color: var(--color-txt); }
+  .ctl:focus { outline: none; border-color: var(--color-info); }
+  .btn { border-radius: 8px; padding: .5rem .9rem; font-weight: 600; font-size: .85rem; }
+  .btn:disabled { opacity: .45; }
+  .btn-pri { background: var(--color-txt); color: var(--color-coal); }
+  .btn-sec { border: 1px solid var(--color-line); color: var(--color-txt); }
+}
