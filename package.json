@@ -1,0 +1,44 @@
+{
+  "name": "ledger-sentry",
+  "version": "0.1.0",
+  "description": "Watch Stellar accounts in real time and get Discord, Slack or webhook alerts for payments, signer changes, merges and more.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "ledger-sentry": "dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/bin.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint src"
+  },
+  "keywords": [
+    "stellar",
+    "monitoring",
+    "alerts",
+    "horizon",
+    "discord",
+    "security"
+  ],
+  "dependencies": {
+    "@stellar/stellar-sdk": "^14.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^22.10.7",
+    "eslint": "^9.20.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.0",
+    "vitest": "^3.0.0"
+  }
+}

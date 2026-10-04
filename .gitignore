@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+sentry.config.json
+.sentry-cursors.json
+.DS_Store
