@@ -1,0 +1,20 @@
+{
+  "horizonUrl": "https://horizon-testnet.stellar.org",
+  "explorerTxUrl": "https://stellar.expert/explorer/testnet/tx/{hash}",
+  "cursorFile": ".sentry-cursors.json",
+  "accounts": [
+    { "address": "GBRPYHIL2CI3FNQ4BXLFMNDLFJUNPU2HY3ZMFSHONUCEOASW7QC7OX2H", "label": "Treasury" }
+  ],
+  "rules": [
+    { "type": "payment_received", "minAmount": 100 },
+    { "type": "payment_sent" },
+    { "type": "signer_change" },
+    { "type": "threshold_change" },
+    { "type": "account_merge" },
+    { "type": "trustline_change" }
+  ],
+  "notifiers": [
+    { "type": "console" },
+    { "type": "discord", "webhookUrl": "${DISCORD_WEBHOOK_URL}" }
+  ]
+}
