@@ -135,7 +135,7 @@ export default function App() {
       <header className="border-b border-line">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3">
           <div className="flex items-center gap-2.5">
-            <img src="/favicon.svg" className="h-8 w-8" alt="" />
+            <img src={`${import.meta.env.BASE_URL}favicon.svg`} className="h-8 w-8" alt="" />
             <span className="text-lg font-extrabold">ledger-sentry</span>
           </div>
           <div className="flex items-center gap-3">
