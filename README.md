@@ -95,6 +95,12 @@ npm test        # 24 tests: rules, notifiers, config, cursors
 npm run lint && npm run typecheck && npm run build
 ```
 
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Deployment](docs/deployment.md)
+- [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Changelog](CHANGELOG.md)
+
 ## Glossary (new to Stellar?)
 
 - **Horizon**: Stellar's HTTP API server. It can *stream* new operations
