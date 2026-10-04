@@ -95,6 +95,26 @@ npm test        # 24 tests: rules, notifiers, config, cursors
 npm run lint && npm run typecheck && npm run build
 ```
 
+## Web app
+
+![ledger-sentry web app](docs/assets/web-app.png)
+
+A live monitoring dashboard at `web/`, running the service's own rule engine in the browser:
+
+- **Watchlist**: add any accounts with labels (testnet or mainnet), saved in your browser.
+- **Rules**: toggle each rule and set minimum amounts for payment alerts.
+- **Alert feed**: replays each account's last 30 operations through the rules, then **Go live** streams new operations from Horizon as they happen. Counters for critical, warning and info.
+- **Export config**: generates the matching `sentry.config.json`, so you can run the service 24/7 with Discord, Slack or webhook delivery.
+
+```bash
+cd web
+npm install
+npm run dev        # http://localhost:5173
+```
+
+The app imports the library straight from `../src`, so the browser and the CLI
+share one implementation. `netlify.toml` at the repo root deploys it as-is.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
