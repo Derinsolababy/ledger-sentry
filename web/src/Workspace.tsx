@@ -55,11 +55,16 @@ export function Workspace() {
   const closers = useRef<(() => void)[]>([]);
 
   useEffect(() => {
-    localStorage.setItem("sentry.net", JSON.stringify(net));
-    localStorage.setItem("sentry.accounts", JSON.stringify(accounts));
-    localStorage.setItem("sentry.rules", JSON.stringify(enabled));
-    localStorage.setItem("sentry.mins", JSON.stringify(mins));
-    localStorage.setItem("sentry.assets", JSON.stringify(assets));
+    // Settings are a per-browser convenience; without storage the dashboard still works.
+    try {
+      localStorage.setItem("sentry.net", JSON.stringify(net));
+      localStorage.setItem("sentry.accounts", JSON.stringify(accounts));
+      localStorage.setItem("sentry.rules", JSON.stringify(enabled));
+      localStorage.setItem("sentry.mins", JSON.stringify(mins));
+      localStorage.setItem("sentry.assets", JSON.stringify(assets));
+    } catch {
+      /* storage unavailable (private mode, blocked site data) */
+    }
   }, [net, accounts, enabled, mins, assets]);
 
   const rules: Rule[] = useMemo(
@@ -119,7 +124,9 @@ export function Workspace() {
   useEffect(() => stop, []);
   useEffect(() => {
     if (live) start();
-    // restart streams when the watch configuration changes
+    // Restart streams only when the watch configuration changes; `live` and
+    // `start` are deliberately left out so toggling live doesn't loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accounts, rules, net]);
 
   const config = {
