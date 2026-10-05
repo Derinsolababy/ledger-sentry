@@ -46,6 +46,7 @@ export function Workspace() {
     load("sentry.rules", Object.fromEntries(RULE_INFO.map((r) => [r.type, r.type !== "any_operation"]))),
   );
   const [mins, setMins] = useState<Record<string, string>>(() => load("sentry.mins", { payment_received: "1", payment_sent: "" }));
+  const [assets, setAssets] = useState<Record<string, string>>(() => load("sentry.assets", {}));
   const [alerts, setAlerts] = useState<(Alert & { live?: boolean })[]>([]);
   const [live, setLive] = useState(false);
   const [newAddr, setNewAddr] = useState("");
@@ -58,15 +59,18 @@ export function Workspace() {
     localStorage.setItem("sentry.accounts", JSON.stringify(accounts));
     localStorage.setItem("sentry.rules", JSON.stringify(enabled));
     localStorage.setItem("sentry.mins", JSON.stringify(mins));
-  }, [net, accounts, enabled, mins]);
+    localStorage.setItem("sentry.assets", JSON.stringify(assets));
+  }, [net, accounts, enabled, mins, assets]);
 
   const rules: Rule[] = useMemo(
     () =>
       RULE_INFO.filter((r) => enabled[r.type]).map((r) => {
         const min = Number(mins[r.type]);
-        return (r.hasMin && min > 0 ? { type: r.type, minAmount: min } : { type: r.type }) as Rule;
+        const asset = (assets[r.type] ?? "").trim().toUpperCase();
+        if (!r.hasMin) return { type: r.type } as Rule;
+        return { type: r.type, ...(min > 0 ? { minAmount: min } : {}), ...(asset ? { asset } : {}) } as Rule;
       }),
-    [enabled, mins],
+    [enabled, mins, assets],
   );
 
   const server = useMemo(() => new Horizon.Server(NETWORKS[net].horizon), [net]);
@@ -149,7 +153,7 @@ export function Workspace() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-7xl gap-5 px-5 py-6 lg:grid-cols-[320px_1fr]">
+      <div className="mx-auto grid max-w-7xl gap-5 px-5 py-6 lg:grid-cols-[320px_1fr]">
         <aside className="space-y-5">
           <section className="card p-4">
             <h2 className="text-sm font-bold uppercase tracking-wider text-sub">Watching</h2>
@@ -196,7 +200,17 @@ export function Workspace() {
                     {r.label}
                   </label>
                   {r.hasMin && enabled[r.type] && (
-                    <input className="ctl w-20 py-1 text-xs" placeholder="min" value={mins[r.type] ?? ""} onChange={(e) => setMins({ ...mins, [r.type]: e.target.value })} />
+                    <div className="flex gap-1.5">
+                      <input className="ctl w-20 py-1 text-xs" placeholder="min" aria-label={`${r.label} minimum`} value={mins[r.type] ?? ""} onChange={(e) => setMins({ ...mins, [r.type]: e.target.value })} />
+                      <input
+                        className="ctl w-20 py-1 text-xs uppercase"
+                        placeholder="any asset"
+                        aria-label={`${r.label} asset code`}
+                        title="Asset code, e.g. XLM or USDC. Blank = any asset."
+                        value={assets[r.type] ?? ""}
+                        onChange={(e) => setAssets({ ...assets, [r.type]: e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 12) })}
+                      />
+                    </div>
                   )}
                 </div>
               ))}
@@ -256,7 +270,7 @@ export function Workspace() {
             </a>
           </p>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

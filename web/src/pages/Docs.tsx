@@ -1,4 +1,5 @@
-import { Link, useTitle } from "../lib/router";
+import { useEffect } from "react";
+import { Link, useSection, useTitle } from "../lib/router";
 
 const SECTIONS = [
   ["start", "Getting started"],
@@ -9,23 +10,19 @@ const SECTIONS = [
 
 export function Docs() {
   useTitle("Docs · ledger-sentry");
+  const section = useSection();
+  useEffect(() => {
+    if (section) document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
+  }, [section]);
   return (
     <div className="mx-auto grid max-w-6xl gap-12 px-5 py-14 lg:grid-cols-[210px_1fr]">
       <aside className="hidden lg:block">
         <nav className="sticky top-24 space-y-1 text-sm">
           <p className="mb-3 px-3 text-xs font-bold uppercase tracking-[0.2em] text-info">On this page</p>
           {SECTIONS.map(([id, label]) => (
-            <a
-              key={id}
-              href="#/docs"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="block rounded-lg px-3 py-2 text-sub hover:bg-slab hover:text-txt"
-            >
+            <Link key={id} to={`/docs/${id}`} className="block rounded-lg px-3 py-2 text-sub hover:bg-slab hover:text-txt">
               {label}
-            </a>
+            </Link>
           ))}
         </nav>
       </aside>
@@ -65,7 +62,11 @@ export function Docs() {
         <section id="reference" className="scroll-mt-24 space-y-5">
           <h2 className="text-3xl font-extrabold tracking-tight text-txt">Rules & configuration</h2>
           <p className="text-sub">Run the service with a config file. The dashboard can export one for you:</p>
-          <pre className="overflow-x-auto p-5 font-mono text-xs leading-relaxed card text-live">{`npm install -g ledger-sentry          # or clone + npm install && npm run build
+          <pre className="overflow-x-auto p-5 font-mono text-xs leading-relaxed card text-live">{`# not published to npm yet: install from source
+git clone https://github.com/Derinsolababy/ledger-sentry && cd ledger-sentry
+npm install && npm run build && npm link   # puts \`ledger-sentry\` on your PATH
+
+npm install -g ledger-sentry          # or clone + npm install && npm run build
 cp sentry.config.example.json sentry.config.json
 export DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/…
 ledger-sentry sentry.config.json`}</pre>
@@ -126,7 +127,7 @@ const CONCEPTS: [string, string][] = [
   ],
   [
     "Notifier",
-    "Where alerts go: console, Discord, Slack or a generic JSON webhook."
+    "Where alerts go: console, Discord, Slack, Telegram or a generic JSON webhook, each with an optional minimum severity and digest."
   ],
   [
     "Cursor",
@@ -191,7 +192,7 @@ const FAQ: [string, string][] = [
   ],
   [
     "How do I send alerts somewhere else?",
-    "Use the webhook notifier to POST alerts as JSON anywhere, with custom headers."
+    "Use the webhook notifier to POST alerts as JSON anywhere, with custom headers. Telegram is built in too (botToken + chatId)."
   ],
   [
     "Is it open source?",
