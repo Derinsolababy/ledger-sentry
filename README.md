@@ -18,7 +18,10 @@ https://stellar.expert/explorer/public/tx/9f3c…
 ## Quick start
 
 ```bash
-npm install -g ledger-sentry          # or clone + npm install && npm run build
+# not published to npm yet: install from source
+git clone https://github.com/Derinsolababy/ledger-sentry && cd ledger-sentry
+npm install && npm run build && npm link   # puts `ledger-sentry` on your PATH
+
 cp sentry.config.example.json sentry.config.json
 export DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/…
 ledger-sentry sentry.config.json
@@ -31,6 +34,8 @@ ledger-sentry sentry.config.json
   "horizonUrl": "https://horizon.stellar.org",
   "explorerTxUrl": "https://stellar.expert/explorer/public/tx/{hash}",
   "cursorFile": ".sentry-cursors.json",
+  "stallCheckMinutes": 5,
+  "healthPort": 8787,
   "accounts": [{ "address": "GBRP…OX2H", "label": "Treasury" }],
   "rules": [
     { "type": "payment_received", "minAmount": 100 },
@@ -43,7 +48,8 @@ ledger-sentry sentry.config.json
   "notifiers": [
     { "type": "console" },
     { "type": "discord", "webhookUrl": "${DISCORD_WEBHOOK_URL}" },
-    { "type": "slack", "webhookUrl": "${SLACK_WEBHOOK_URL}" },
+    { "type": "slack", "webhookUrl": "${SLACK_WEBHOOK_URL}", "minSeverity": "critical", "digestMinutes": 1440 },
+    { "type": "telegram", "botToken": "${TELEGRAM_BOT_TOKEN}", "chatId": "${TELEGRAM_CHAT_ID}" },
     { "type": "webhook", "url": "https://ops.example/alerts", "headers": { "authorization": "Bearer ${OPS_TOKEN}" } }
   ]
 }
@@ -53,6 +59,13 @@ ledger-sentry sentry.config.json
 and tokens never have to live in the file. The config is validated at
 startup with clear error messages (bad addresses, unknown rules, non-https
 webhooks).
+
+### Notifiers
+
+`console`, `discord`, `slack`, `telegram` (Bot API `botToken` + `chatId`) and `webhook` (raw alert JSON, optional headers). Every notifier also accepts:
+
+- `minSeverity` (`info` | `warning` | `critical`): alerts below it aren't sent right away.
+- `digestMinutes`: with `minSeverity`, the lower-severity alerts are collected and sent as one digest message every N minutes (e.g. critical alerts instantly, a daily digest of payments). Pending digests are flushed on shutdown.
 
 ### Rules
 
@@ -76,6 +89,9 @@ webhooks).
   aren't retried, since retrying a misconfigured webhook won't help.
 - **One broken channel doesn't silence the rest.** Each notifier fails
   independently and the error is logged.
+- **One alert per operation.** A payment between two watched accounts reaches both streams but alerts once.
+- **Stall detection.** Every `stallCheckMinutes` (default 5, `0` disables) each stream is compared with Horizon's latest operation for the account; if Horizon is ahead and nothing has arrived for a minute, the stream is restarted from the saved cursor.
+- **Health check.** With `healthPort`, `GET /health` returns per-account cursor, last event, restarts and stall state (HTTP 503 while a stream is stalled), for uptime monitors.
 - Streams reconnect automatically, and SIGINT/SIGTERM shut down cleanly.
 
 ## Use it as a library
@@ -98,6 +114,10 @@ npm run lint && npm run typecheck && npm run build
 ## Web app
 
 ![ledger-sentry web app](docs/assets/web-app.png)
+
+The site has three pages: **Home** (what it does, with live testnet data), **App** (the tool itself) and **Docs** (getting started, concepts, reference and FAQ).
+
+![ledger-sentry app page](docs/assets/web-app-page.png)
 
 A live monitoring dashboard at `web/`, running the service's own rule engine in the browser:
 

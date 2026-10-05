@@ -39,10 +39,27 @@ export function validateConfig(raw: unknown): Config {
     throw new Error("notifiers must list at least one notifier");
   }
   for (const n of c.notifiers as NotifierConfig[]) {
+    if (n.minSeverity !== undefined && !["info", "warning", "critical"].includes(n.minSeverity)) {
+      throw new Error(`${n.type}.minSeverity must be info, warning or critical`);
+    }
+    if (n.digestMinutes !== undefined) {
+      if (typeof n.digestMinutes !== "number" || n.digestMinutes <= 0) throw new Error(`${n.type}.digestMinutes must be a positive number`);
+      if (!n.minSeverity) throw new Error(`${n.type}.digestMinutes needs minSeverity (alerts below it go into the digest)`);
+    }
     if (n.type === "console") continue;
+    if (n.type === "telegram") {
+      if (!n.botToken || !n.chatId) throw new Error("telegram notifier needs botToken and chatId");
+      continue;
+    }
     const url = n.type === "webhook" ? n.url : n.type === "discord" || n.type === "slack" ? n.webhookUrl : undefined;
     if (url === undefined) throw new Error(`unknown notifier type: ${JSON.stringify((n as { type?: unknown }).type)}`);
     if (!/^https:\/\//.test(url)) throw new Error(`${n.type} notifier needs an https URL`);
+  }
+  if (c.stallCheckMinutes !== undefined && (typeof c.stallCheckMinutes !== "number" || c.stallCheckMinutes < 0)) {
+    throw new Error("stallCheckMinutes must be a non-negative number");
+  }
+  if (c.healthPort !== undefined && !(Number.isInteger(c.healthPort) && c.healthPort > 0 && c.healthPort < 65536)) {
+    throw new Error("healthPort must be a valid TCP port");
   }
   return c as Config;
 }

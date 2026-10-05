@@ -48,11 +48,22 @@ export type Rule =
   | { type: "trustline_change" }
   | { type: "any_operation" };
 
-export type NotifierConfig =
-  | { type: "console" }
-  | { type: "webhook"; url: string; headers?: Record<string, string> }
-  | { type: "discord"; webhookUrl: string }
-  | { type: "slack"; webhookUrl: string };
+/** Settings every notifier accepts. */
+export interface NotifierOptions {
+  /** Alerts below this severity aren't sent immediately (default: send everything). */
+  minSeverity?: Severity;
+  /** If set (with minSeverity), lower-severity alerts are batched into one digest every N minutes. */
+  digestMinutes?: number;
+}
+
+export type NotifierConfig = NotifierOptions &
+  (
+    | { type: "console" }
+    | { type: "webhook"; url: string; headers?: Record<string, string> }
+    | { type: "discord"; webhookUrl: string }
+    | { type: "slack"; webhookUrl: string }
+    | { type: "telegram"; botToken: string; chatId: string }
+  );
 
 export interface Config {
   horizonUrl: string;
@@ -63,6 +74,10 @@ export interface Config {
   cursorFile?: string;
   /** Link template for alerts; `{hash}` is replaced. */
   explorerTxUrl?: string;
+  /** How often (minutes) to check each stream against Horizon for silent stalls. Default 5; 0 disables. */
+  stallCheckMinutes?: number;
+  /** Serve GET /health on this port (JSON with per-account stream status). */
+  healthPort?: number;
 }
 
 export interface Alert {
